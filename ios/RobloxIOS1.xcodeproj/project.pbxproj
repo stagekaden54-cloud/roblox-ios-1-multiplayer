@@ -41,7 +41,8 @@
         A10000000000000000000009 /* ClassicTheme.swift */,
         A1000000000000000000000A /* MultiplayerClient.swift */,
         A1000000000000000000000B /* WelcomeViewController.swift */,
-        A1000000000000000000000C /* LobbyViewController.swift */
+        A1000000000000000000000C /* LobbyViewController.swift */,
+        A1000000000000000000001B /* Info.plist */
       );
     };
     A10000000000000000000008 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -49,6 +50,7 @@
     A1000000000000000000000A = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiplayerClient.swift; sourceTree = "<group>"; };
     A1000000000000000000000B = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
     A1000000000000000000000C = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LobbyViewController.swift; sourceTree = "<group>"; };
+    A1000000000000000000001B /* Info.plist */ = { isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
     A10000000000000000000007 /* RobloxIOS1.app */ = { isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RobloxIOS1.app; sourceTree = BUILT_PRODUCTS_DIR; };
     A1000000000000000000000D /* Sources */ = {
       isa = PBXSourcesBuildPhase;
@@ -107,9 +109,8 @@
     A10000000000000000000019 /* Target Debug */ = {
       isa = XCBuildConfiguration;
       buildSettings = {
-        GENERATE_INFOPLIST_FILE = YES;
-        INFOPLIST_KEY_CFBundleDisplayName = "Roblox iOS 1.0";
-        INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+        GENERATE_INFOPLIST_FILE = NO;
+        INFOPLIST_FILE = RobloxIOS1/Info.plist;
         IPHONEOS_DEPLOYMENT_TARGET = 15.0;
         PRODUCT_BUNDLE_IDENTIFIER = com.stagekaden54.robloxios1multiplayer;
         PRODUCT_NAME = "$(TARGET_NAME)";
