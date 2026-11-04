@@ -21,10 +21,11 @@
 
 ## Phase 2 — Client foundation
 
-- [ ] Decide whether to use a native Swift app or a carefully scoped Objective-C/Swift reconstruction.
-- [ ] Recreate a small set of historical screens using original resources where permitted.
-- [ ] Add a connection screen and guest display name.
-- [ ] Connect to the custom WebSocket protocol.
+- [x] Choose Swift + UIKit for a native modern iOS reconstruction.
+- [x] Create an Xcode project targeting iOS 15+ and 64-bit devices.
+- [x] Add a classic-inspired welcome screen and guest display name.
+- [x] Add configurable WebSocket connection and lobby chat/presence UI.
+- [ ] Build and run the Xcode project in Xcode; compilation and device testing have not yet been performed.
 - [ ] Test the client against the local server.
 
 ## Phase 3 — Multiplayer prototype
