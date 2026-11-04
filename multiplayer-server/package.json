@@ -1,0 +1,16 @@
+{
+  "name": "roblox-ios-1-multiplayer-server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Independent WebSocket multiplayer prototype for the Roblox iOS 1.0 preservation experiment",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}
