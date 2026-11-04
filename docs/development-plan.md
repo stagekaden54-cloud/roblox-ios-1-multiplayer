@@ -10,13 +10,14 @@
 ## Phase 1 — Local server prototype
 
 - [x] Create a WebSocket server scaffold.
-- [x] Test two local clients joining the same room.
+- [x] Add a two-client integration test for joining, presence, chat, and leaving.
 - [x] Add heartbeat ping/pong and stale-session cleanup.
 - [x] Add message-size limits and basic message/chat rate limits.
-- [x] Add automated tests for join, leave, presence, chat, and errors.
+- [x] Add automated tests for core lobby behavior and invalid message types.
 - [x] Add a manual two-client demo command.
+- [ ] Install dependencies and run the automated test suite on a machine with network access.
 - [ ] Add configurable room capacity and explicit room creation.
-- [ ] Add structured logging and a graceful shutdown path for deployment.
+- [ ] Add structured logging and deployment-grade graceful shutdown.
 
 ## Phase 2 — Client foundation
 
