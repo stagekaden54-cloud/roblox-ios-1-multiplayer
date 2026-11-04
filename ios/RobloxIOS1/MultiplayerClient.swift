@@ -41,9 +41,22 @@ final class MultiplayerClient {
         let task = session.webSocketTask(with: url)
         webSocket = task
         task.resume()
-        sendJSON(["type": "join", "displayName": displayName])
+        let joinObject: [String: String] = ["type": "join", "displayName": displayName]
+        guard let joinData = try? JSONSerialization.data(withJSONObject: joinObject),
+              let joinText = String(data: joinData, encoding: .utf8) else {
+            throw ClientError.invalidAddress
+        }
         receiveTask = Task { [weak self] in
-            await self?.receiveMessages()
+            guard let self, let activeSocket = self.webSocket else { return }
+            do {
+                try await activeSocket.send(.string(joinText))
+                await self.receiveMessages()
+            } catch {
+                if !Task.isCancelled {
+                    self.onEvent?(.error("Connection failed: \\(error.localizedDescription)"))
+                    self.onEvent?(.disconnected)
+                }
+            }
         }
     }
 
