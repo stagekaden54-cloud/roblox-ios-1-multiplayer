@@ -1,0 +1,145 @@
+// !$*UTF8*$!
+{
+  archiveVersion = 1;
+  classes = {};
+  objectVersion = 56;
+  objects = {
+    A10000000000000000000001 /* Project object */ = {
+      isa = PBXProject;
+      attributes = { BuildIndependentTargetsInParallel = 1; LastUpgradeCheck = 1500; };
+      buildConfigurationList = A10000000000000000000002;
+      compatibilityVersion = "Xcode 14.0";
+      developmentRegion = en;
+      hasScannedForEncodings = 0;
+      knownRegions = (en, Base);
+      mainGroup = A10000000000000000000003;
+      productRefGroup = A10000000000000000000004;
+      projectDirPath = "";
+      projectRoot = "";
+      targets = (A10000000000000000000005);
+    };
+    A10000000000000000000003 /* Main group */ = {
+      isa = PBXGroup;
+      children = (
+        A10000000000000000000006 /* RobloxIOS1 */,
+        A10000000000000000000004 /* Products */
+      );
+      sourceTree = "<group>";
+    };
+    A10000000000000000000004 /* Products */ = {
+      isa = PBXGroup;
+      children = (A10000000000000000000007 /* RobloxIOS1.app */);
+      name = Products;
+      sourceTree = "<group>";
+    };
+    A10000000000000000000006 /* RobloxIOS1 */ = {
+      isa = PBXGroup;
+      path = RobloxIOS1;
+      sourceTree = "<group>";
+      children = (
+        A10000000000000000000008 /* AppDelegate.swift */,
+        A10000000000000000000009 /* ClassicTheme.swift */,
+        A1000000000000000000000A /* MultiplayerClient.swift */,
+        A1000000000000000000000B /* WelcomeViewController.swift */,
+        A1000000000000000000000C /* LobbyViewController.swift */
+      );
+    };
+    A10000000000000000000008 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+    A10000000000000000000009 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicTheme.swift; sourceTree = "<group>"; };
+    A1000000000000000000000A = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiplayerClient.swift; sourceTree = "<group>"; };
+    A1000000000000000000000B = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
+    A1000000000000000000000C = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LobbyViewController.swift; sourceTree = "<group>"; };
+    A10000000000000000000007 /* RobloxIOS1.app */ = { isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RobloxIOS1.app; sourceTree = BUILT_PRODUCTS_DIR; };
+    A1000000000000000000000D /* Sources */ = {
+      isa = PBXSourcesBuildPhase;
+      buildActionMask = 2147483647;
+      files = (
+        A1000000000000000000000E,
+        A1000000000000000000000F,
+        A10000000000000000000010,
+        A10000000000000000000011,
+        A10000000000000000000012
+      );
+      runOnlyForDeploymentPostprocessing = 0;
+    };
+    A1000000000000000000000E = { isa = PBXBuildFile; fileRef = A10000000000000000000008; };
+    A1000000000000000000000F = { isa = PBXBuildFile; fileRef = A10000000000000000000009; };
+    A10000000000000000000010 = { isa = PBXBuildFile; fileRef = A1000000000000000000000A; };
+    A10000000000000000000011 = { isa = PBXBuildFile; fileRef = A1000000000000000000000B; };
+    A10000000000000000000012 = { isa = PBXBuildFile; fileRef = A1000000000000000000000C; };
+    A10000000000000000000013 /* Frameworks */ = { isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+    A10000000000000000000014 /* Resources */ = { isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+    A10000000000000000000005 /* RobloxIOS1 target */ = {
+      isa = PBXNativeTarget;
+      buildConfigurationList = A10000000000000000000015;
+      buildPhases = (
+        A1000000000000000000000D,
+        A10000000000000000000013,
+        A10000000000000000000014
+      );
+      buildRules = ();
+      dependencies = ();
+      name = RobloxIOS1;
+      productName = RobloxIOS1;
+      productReference = A10000000000000000000007;
+      productType = "com.apple.product-type.application";
+    };
+    A10000000000000000000016 /* Project Debug/Release */ = {
+      isa = XCConfigurationList;
+      buildConfigurations = (A10000000000000000000017, A10000000000000000000018);
+      defaultConfigurationIsVisible = 0;
+      defaultConfigurationName = Release;
+    };
+    A10000000000000000000015 /* Target Debug/Release */ = {
+      isa = XCConfigurationList;
+      buildConfigurations = (A10000000000000000000019, A1000000000000000000001A);
+      defaultConfigurationIsVisible = 0;
+      defaultConfigurationName = Release;
+    };
+    A10000000000000000000017 /* Project Debug */ = {
+      isa = XCBuildConfiguration;
+      buildSettings = { SDKROOT = iphoneos; }; name = Debug;
+    };
+    A10000000000000000000018 /* Project Release */ = {
+      isa = XCBuildConfiguration;
+      buildSettings = { SDKROOT = iphoneos; }; name = Release;
+    };
+    A10000000000000000000019 /* Target Debug */ = {
+      isa = XCBuildConfiguration;
+      buildSettings = {
+        GENERATE_INFOPLIST_FILE = YES;
+        INFOPLIST_KEY_CFBundleDisplayName = "Roblox iOS 1.0";
+        INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+        IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+        PRODUCT_BUNDLE_IDENTIFIER = com.stagekaden54.robloxios1multiplayer;
+        PRODUCT_NAME = "$(TARGET_NAME)";
+        SWIFT_VERSION = 5.0;
+        TARGETED_DEVICE_FAMILY = "1,2";
+        SUPPORTS_MACCATALYST = NO;
+      };
+      name = Debug;
+    };
+    A1000000000000000000001A /* Target Release */ = {
+      isa = XCBuildConfiguration;
+      buildSettings = {
+        GENERATE_INFOPLIST_FILE = YES;
+        INFOPLIST_KEY_CFBundleDisplayName = "Roblox iOS 1.0";
+        INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+        IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+        PRODUCT_BUNDLE_IDENTIFIER = com.stagekaden54.robloxios1multiplayer;
+        PRODUCT_NAME = "$(TARGET_NAME)";
+        SWIFT_VERSION = 5.0;
+        TARGETED_DEVICE_FAMILY = "1,2";
+        SUPPORTS_MACCATALYST = NO;
+      };
+      name = Release;
+    };
+    A10000000000000000000002 /* Project configurations */ = {
+      isa = XCConfigurationList;
+      buildConfigurations = (A10000000000000000000017, A10000000000000000000018);
+      defaultConfigurationIsVisible = 0;
+      defaultConfigurationName = Release;
+    };
+  };
+  rootObject = A10000000000000000000001;
+}
