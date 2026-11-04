@@ -11,13 +11,13 @@ const CHAT_LIMIT = 5;
 
 function cleanDisplayName(value) {
   if (typeof value !== "string") return "Guest";
-  const cleaned = value.replace(/[<>\\u0000-\\u001f\\u007f]/g, "").trim().slice(0, 20);
+  const cleaned = value.replace(/[<>\u0000-\u001f\u007f]/g, "").trim().slice(0, 20);
   return cleaned || "Guest";
 }
 
 function cleanChatText(value) {
   if (typeof value !== "string") return "";
-  return value.replace(/[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f]/g, "")
+  return value.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "")
     .trim()
     .slice(0, MAX_CHAT_LENGTH);
 }
@@ -29,26 +29,16 @@ function isRateLimited(history, now, windowMs, limit) {
   return false;
 }
 
-/**
- * Create an isolated in-memory multiplayer server.
- * Defaults to loopback so the prototype is not exposed to the public internet.
- */
 export function createMultiplayerServer({
   port = Number(process.env.PORT ?? 8080),
   host = process.env.HOST ?? "127.0.0.1",
   heartbeatIntervalMs = 30_000
 } = {}) {
-  const wss = new WebSocketServer({
-    host,
-    port,
-    maxPayload: MAX_MESSAGE_BYTES
-  });
+  const wss = new WebSocketServer({ host, port, maxPayload: MAX_MESSAGE_BYTES });
   const players = new Map();
 
   function send(socket, payload) {
-    if (socket.readyState === WebSocket.OPEN) {
-      socket.send(JSON.stringify(payload));
-    }
+    if (socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify(payload));
   }
 
   function roomPlayers() {
@@ -75,13 +65,8 @@ export function createMultiplayerServer({
       chatTimes: []
     };
 
-    function fail(message) {
-      send(socket, { type: "error", message });
-    }
-
-    socket.on("pong", () => {
-      socket.isAlive = true;
-    });
+    const fail = (message) => send(socket, { type: "error", message });
+    socket.on("pong", () => { socket.isAlive = true; });
 
     socket.on("message", (buffer) => {
       const now = Date.now();
@@ -184,17 +169,13 @@ export function createMultiplayerServer({
     async close() {
       if (heartbeat) clearInterval(heartbeat);
       for (const socket of wss.clients) socket.terminate();
-      if (wss.clients.size === 0) {
-        await new Promise((resolve) => wss.close(resolve));
-      } else {
-        await new Promise((resolve) => wss.close(resolve));
-      }
+      await new Promise((resolve) => wss.close(resolve));
     }
   };
 }
 
 const isMainModule = process.argv[1]
-  && new URL(import.meta.url).pathname === new URL(`file://${process.argv[1]}`).pathname;
+  && new URL(import.meta.url).pathname === new URL(\`file://\${process.argv[1]}\`).pathname;
 
 if (isMainModule) {
   const host = process.env.HOST ?? "127.0.0.1";
@@ -202,7 +183,7 @@ if (isMainModule) {
   server.wss.on("listening", () => {
     const address = server.wss.address();
     const actualPort = typeof address === "object" && address ? address.port : 8080;
-    console.log(`Multiplayer prototype listening on ws://${host}:${actualPort}`);
+    console.log(\`Multiplayer prototype listening on ws://\${host}:\${actualPort}\`);
   });
   server.wss.on("error", (error) => {
     console.error("WebSocket server error:", error);
