@@ -70,3 +70,14 @@ Movement is intentionally not implemented until an independent 3D test scene exi
 - This server uses temporary guest identities, not Roblox accounts.
 - Never put Apple signing certificates, private keys, passwords, Roblox cookies, or authentication tokens in this repository.
 - The server is a learning prototype, not production-ready. It has no durable accounts, moderation dashboard, TLS deployment, or robust distributed abuse controls.
+
+
+## Native iOS client
+
+The first Swift + UIKit client scaffold is now under `ios/`.
+
+- Open `ios/RobloxIOS1.xcodeproj` in Xcode.
+- Select the `RobloxIOS1` scheme and an iPhone simulator or device.
+- See `ios/README.md` for local multiplayer connection instructions.
+
+The client currently includes a classic-inspired guest welcome screen, configurable WebSocket server address, lobby player list, and chat. It is an independent modern app and does not embed or patch the historical IPA. The app has not yet been compiled or device-tested.
