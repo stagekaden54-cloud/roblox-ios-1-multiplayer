@@ -7,13 +7,16 @@
 - [ ] Keep an untouched backup of the supplied historical IPA outside source control.
 - [ ] Record provenance and hashes for files used during analysis.
 
-## Phase 1 — Server prototype
+## Phase 1 — Local server prototype
 
 - [x] Create a WebSocket server scaffold.
-- [ ] Test two local clients joining the same room.
-- [ ] Add heartbeat and stale-session cleanup.
-- [ ] Add basic rate limiting and message-size limits.
-- [ ] Add automated tests for join, leave, presence, and chat.
+- [x] Test two local clients joining the same room.
+- [x] Add heartbeat ping/pong and stale-session cleanup.
+- [x] Add message-size limits and basic message/chat rate limits.
+- [x] Add automated tests for join, leave, presence, chat, and errors.
+- [x] Add a manual two-client demo command.
+- [ ] Add configurable room capacity and explicit room creation.
+- [ ] Add structured logging and a graceful shutdown path for deployment.
 
 ## Phase 2 — Client foundation
 
@@ -21,6 +24,7 @@
 - [ ] Recreate a small set of historical screens using original resources where permitted.
 - [ ] Add a connection screen and guest display name.
 - [ ] Connect to the custom WebSocket protocol.
+- [ ] Test the client against the local server.
 
 ## Phase 3 — Multiplayer prototype
 
@@ -35,6 +39,10 @@
 - [ ] Test on a device with a development-signed build.
 - [ ] Package and sign a test IPA.
 - [ ] Document ESign installation steps after the build is validated.
+
+## Security and release gate
+
+Do not expose this prototype publicly yet. Before any public deployment, add TLS/WSS, a deliberate origin policy, connection and room limits, stronger abuse controls, moderation/reporting, operational monitoring, and a privacy review. Never collect Roblox passwords, cookies, or tokens.
 
 ## Scope guardrails
 
