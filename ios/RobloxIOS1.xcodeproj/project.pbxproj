@@ -123,9 +123,8 @@
     A1000000000000000000001A /* Target Release */ = {
       isa = XCBuildConfiguration;
       buildSettings = {
-        GENERATE_INFOPLIST_FILE = YES;
-        INFOPLIST_KEY_CFBundleDisplayName = "Roblox iOS 1.0";
-        INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+        GENERATE_INFOPLIST_FILE = NO;
+        INFOPLIST_FILE = RobloxIOS1/Info.plist;
         IPHONEOS_DEPLOYMENT_TARGET = 15.0;
         PRODUCT_BUNDLE_IDENTIFIER = com.stagekaden54.robloxios1multiplayer;
         PRODUCT_NAME = "$(TARGET_NAME)";
