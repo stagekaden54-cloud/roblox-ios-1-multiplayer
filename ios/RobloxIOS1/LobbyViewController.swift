@@ -88,7 +88,7 @@ final class LobbyViewController: UIViewController, UITableViewDataSource, UITabl
         chatView.layer.borderWidth = 1
         chatView.layer.borderColor = ClassicTheme.border.cgColor
         chatView.layer.cornerRadius = 3
-        chatView.heightAnchor.constraint(greaterThanOrEqualToConstant: 160).isActive = true
+        chatView.heightAnchor.constraint(equalToConstant: 180).isActive = true
 
         ClassicTheme.styleTextField(messageField, placeholder: "Write a message…")
         messageField.delegate = self
