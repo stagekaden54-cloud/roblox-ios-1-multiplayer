@@ -1,7 +1,7 @@
 import UIKit
 import SceneKit
 
-/// Basic 3D world with local player, camera, movement, and remote player sync.
+/// 3D world with local player, camera, mobile controls, and remote player sync.
 final class GameViewController: UIViewController {
 
     private let serverAddress: String
@@ -13,11 +13,9 @@ final class GameViewController: UIViewController {
     private var localPlayer: PlayerNode?
     private var remotePlayers: [String: PlayerNode] = [:]
 
-    // Movement
-    private var moveForward = false
-    private var moveBack = false
-    private var moveLeft = false
-    private var moveRight = false
+    // Movement input (-1...1)
+    private var inputX: Float = 0
+    private var inputZ: Float = 0
     private var wantsJump = false
 
     private var velocityY: Float = 0
@@ -35,7 +33,8 @@ final class GameViewController: UIViewController {
 
     // UI
     private let statusLabel = UILabel()
-    private let chatButton = UIButton(type: .system)
+    private var joystickView: VirtualJoystickView?
+    private var jumpButton: UIButton?
 
     init(serverAddress: String, displayName: String) {
         self.serverAddress = serverAddress
@@ -57,6 +56,7 @@ final class GameViewController: UIViewController {
         setupLocalPlayer()
         setupUI()
         setupGestures()
+        setupMobileControlsIfNeeded()
 
         client.onEvent = { [weak self] event in
             self?.handle(event)
@@ -69,7 +69,6 @@ final class GameViewController: UIViewController {
             statusLabel.text = "Connection failed"
         }
 
-        // Game loop
         let displayLink = CADisplayLink(target: self, selector: #selector(tick))
         displayLink.add(to: .main, forMode: .common)
     }
@@ -81,7 +80,7 @@ final class GameViewController: UIViewController {
         }
     }
 
-    // MARK: - Scene Setup
+    // MARK: - Scene
 
     private func setupScene() {
         scnView = SCNView(frame: view.bounds)
@@ -107,19 +106,16 @@ final class GameViewController: UIViewController {
     }
 
     private func setupWorld() {
-        // Simple ground plane (baseplate feel)
         let ground = SCNBox(width: 40, height: 0.5, length: 40, chamferRadius: 0)
         ground.firstMaterial?.diffuse.contents = UIColor(red: 0.45, green: 0.70, blue: 0.35, alpha: 1)
         let groundNode = SCNNode(geometry: ground)
         groundNode.position = SCNVector3(0, -0.25, 0)
         scene.rootNode.addChildNode(groundNode)
 
-        // A few blocky props for reference
         addBlock(at: SCNVector3(4, 0.5, 3), color: .systemOrange)
         addBlock(at: SCNVector3(-3, 0.5, 5), color: .systemPurple)
         addBlock(at: SCNVector3(0, 0.5, -6), color: .systemTeal)
 
-        // Soft lighting
         let ambient = SCNNode()
         ambient.light = SCNLight()
         ambient.light?.type = .ambient
@@ -164,21 +160,12 @@ final class GameViewController: UIViewController {
         let back = UIButton(type: .system)
         back.setTitle("Leave", for: .normal)
         back.setTitleColor(.white, for: .normal)
-        back.backgroundColor = UIColor.black.withAlphaComponent(0.4)
+        back.backgroundColor = UIColor.black.withAlphaComponent(0.45)
         back.layer.cornerRadius = 8
         back.contentEdgeInsets = UIEdgeInsets(top: 8, left: 14, bottom: 8, right: 14)
         back.addTarget(self, action: #selector(leaveTapped), for: .touchUpInside)
         back.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(back)
-
-        // Simple on-screen controls hint
-        let hint = UILabel()
-        hint.text = "Drag to look  •  WASD / Arrows to move  •  Space to jump"
-        hint.font = .systemFont(ofSize: 11)
-        hint.textColor = UIColor.white.withAlphaComponent(0.8)
-        hint.textAlignment = .center
-        hint.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(hint)
 
         NSLayoutConstraint.activate([
             statusLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
@@ -187,10 +174,43 @@ final class GameViewController: UIViewController {
             statusLabel.heightAnchor.constraint(equalToConstant: 28),
 
             back.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            back.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            back.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16)
+        ])
+    }
 
-            hint.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -12),
-            hint.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+    private func setupMobileControlsIfNeeded() {
+        // Always show mobile controls on iPhone/iPad
+        let joystick = VirtualJoystickView()
+        joystick.translatesAutoresizingMaskIntoConstraints = false
+        joystick.onMove = { [weak self] x, y in
+            // y is forward/back (up on stick = forward = negative Z)
+            self?.inputX = Float(x)
+            self?.inputZ = Float(-y)
+        }
+        view.addSubview(joystick)
+        joystickView = joystick
+
+        let jump = UIButton(type: .system)
+        jump.setTitle("Jump", for: .normal)
+        jump.setTitleColor(.white, for: .normal)
+        jump.titleLabel?.font = .boldSystemFont(ofSize: 16)
+        jump.backgroundColor = UIColor.black.withAlphaComponent(0.45)
+        jump.layer.cornerRadius = 32
+        jump.translatesAutoresizingMaskIntoConstraints = false
+        jump.addTarget(self, action: #selector(jumpPressed), for: .touchDown)
+        view.addSubview(jump)
+        jumpButton = jump
+
+        NSLayoutConstraint.activate([
+            joystick.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
+            joystick.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -24),
+            joystick.widthAnchor.constraint(equalToConstant: 140),
+            joystick.heightAnchor.constraint(equalToConstant: 140),
+
+            jump.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -28),
+            jump.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -36),
+            jump.widthAnchor.constraint(equalToConstant: 64),
+            jump.heightAnchor.constraint(equalToConstant: 64)
         ])
     }
 
@@ -198,10 +218,16 @@ final class GameViewController: UIViewController {
 
     private func setupGestures() {
         let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
+        // Don't block joystick touches
+        pan.cancelsTouchesInView = false
         scnView.addGestureRecognizer(pan)
     }
 
     @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
+        // Ignore pans that start on the left (joystick) side
+        let loc = gesture.location(in: view)
+        if loc.x < view.bounds.width * 0.42 { return }
+
         let translation = gesture.translation(in: scnView)
         cameraYaw += Float(translation.x) * 0.005
         cameraPitch -= Float(translation.y) * 0.005
@@ -209,27 +235,9 @@ final class GameViewController: UIViewController {
         gesture.setTranslation(.zero, in: scnView)
     }
 
-    override var keyCommands: [UIKeyCommand]? {
-        return [
-            UIKeyCommand(input: "w", modifierFlags: [], action: #selector(keyDownForward)),
-            UIKeyCommand(input: "s", modifierFlags: [], action: #selector(keyDownBack)),
-            UIKeyCommand(input: "a", modifierFlags: [], action: #selector(keyDownLeft)),
-            UIKeyCommand(input: "d", modifierFlags: [], action: #selector(keyDownRight)),
-            UIKeyCommand(input: " ", modifierFlags: [], action: #selector(keyJump)),
-            UIKeyCommand(input: UIKeyCommand.inputUpArrow, modifierFlags: [], action: #selector(keyDownForward)),
-            UIKeyCommand(input: UIKeyCommand.inputDownArrow, modifierFlags: [], action: #selector(keyDownBack)),
-            UIKeyCommand(input: UIKeyCommand.inputLeftArrow, modifierFlags: [], action: #selector(keyDownLeft)),
-            UIKeyCommand(input: UIKeyCommand.inputRightArrow, modifierFlags: [], action: #selector(keyDownRight))
-        ]
+    @objc private func jumpPressed() {
+        wantsJump = true
     }
-
-    @objc private func keyDownForward() { moveForward = true }
-    @objc private func keyDownBack() { moveBack = true }
-    @objc private func keyDownLeft() { moveLeft = true }
-    @objc private func keyDownRight() { moveRight = true }
-    @objc private func keyJump() { wantsJump = true }
-
-    // Note: key up handling is limited with UIKeyCommand; this is acceptable for foundation.
 
     @objc private func leaveTapped() {
         client.disconnect()
@@ -284,7 +292,6 @@ final class GameViewController: UIViewController {
             }
         }
 
-        // Remove players who left
         for (id, node) in remotePlayers where !seen.contains(id) {
             node.removeFromParentNode()
             remotePlayers.removeValue(forKey: id)
@@ -302,7 +309,6 @@ final class GameViewController: UIViewController {
         updateLocalPlayer(dt: dt)
         updateCamera()
 
-        // Send state ~15 times per second
         stateSendAccumulator += TimeInterval(dt)
         if stateSendAccumulator >= 1.0 / 15.0 {
             stateSendAccumulator = 0
@@ -313,36 +319,28 @@ final class GameViewController: UIViewController {
     private func updateLocalPlayer(dt: Float) {
         guard let player = localPlayer else { return }
 
-        var inputX: Float = 0
-        var inputZ: Float = 0
+        var ix = inputX
+        var iz = inputZ
 
-        if moveForward { inputZ -= 1 }
-        if moveBack { inputZ += 1 }
-        if moveLeft { inputX -= 1 }
-        if moveRight { inputX += 1 }
-
-        // Normalize
-        let len = sqrt(inputX * inputX + inputZ * inputZ)
-        if len > 0 {
-            inputX /= len
-            inputZ /= len
+        let len = sqrt(ix * ix + iz * iz)
+        if len > 1 {
+            ix /= len
+            iz /= len
         }
 
-        // Move relative to camera yaw
         let yaw = cameraYaw
         let forwardX = sin(yaw)
         let forwardZ = cos(yaw)
         let rightX = cos(yaw)
         let rightZ = -sin(yaw)
 
-        let moveX = (forwardX * -inputZ + rightX * inputX) * moveSpeed * dt
-        let moveZ = (forwardZ * -inputZ + rightZ * inputX) * moveSpeed * dt
+        let moveX = (forwardX * -iz + rightX * ix) * moveSpeed * dt
+        let moveZ = (forwardZ * -iz + rightZ * ix) * moveSpeed * dt
 
         var pos = player.position
         pos.x += moveX
         pos.z += moveZ
 
-        // Simple gravity + jump
         if wantsJump && pos.y <= 0.05 {
             velocityY = jumpStrength
             wantsJump = false
@@ -358,27 +356,19 @@ final class GameViewController: UIViewController {
 
         player.position = pos
 
-        // Face movement direction
-        if len > 0.1 {
-            player.eulerAngles.y = yaw + atan2(inputX, -inputZ)
+        if len > 0.12 {
+            player.eulerAngles.y = yaw + atan2(ix, -iz)
         }
 
-        // Animation state
         let anim: String
         if pos.y > 0.15 {
             anim = velocityY > 0 ? "jump" : "fall"
-        } else if len > 0.1 {
+        } else if len > 0.12 {
             anim = "walk"
         } else {
             anim = "idle"
         }
         player.setAnimation(anim)
-
-        // Clear one-shot keys (basic)
-        moveForward = false
-        moveBack = false
-        moveLeft = false
-        moveRight = false
     }
 
     private func updateCamera() {
@@ -395,7 +385,6 @@ final class GameViewController: UIViewController {
             target.z + offsetZ
         )
 
-        // Simple spring follow
         let current = cameraNode.position
         let lerp: Float = 0.15
         cameraNode.position = SCNVector3(
@@ -420,3 +409,89 @@ final class GameViewController: UIViewController {
 }
 
 extension GameViewController: SCNSceneRendererDelegate {}
+
+// MARK: - Virtual Joystick
+
+final class VirtualJoystickView: UIView {
+    var onMove: ((CGFloat, CGFloat) -> Void)?
+
+    private let base = UIView()
+    private let stick = UIView()
+    private var baseCenter = CGPoint.zero
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        isMultipleTouchEnabled = false
+
+        base.backgroundColor = UIColor.black.withAlphaComponent(0.28)
+        base.layer.borderColor = UIColor.white.withAlphaComponent(0.35).cgColor
+        base.layer.borderWidth = 2
+        addSubview(base)
+
+        stick.backgroundColor = UIColor.white.withAlphaComponent(0.55)
+        stick.layer.borderColor = UIColor.white.withAlphaComponent(0.8).cgColor
+        stick.layer.borderWidth = 1
+        addSubview(stick)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        base.frame = bounds
+        base.layer.cornerRadius = bounds.width / 2
+
+        let stickSize = bounds.width * 0.42
+        stick.frame = CGRect(x: 0, y: 0, width: stickSize, height: stickSize)
+        stick.layer.cornerRadius = stickSize / 2
+        baseCenter = CGPoint(x: bounds.midX, y: bounds.midY)
+        stick.center = baseCenter
+    }
+
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        handle(touches)
+    }
+
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        handle(touches)
+    }
+
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        reset()
+    }
+
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        reset()
+    }
+
+    private func handle(_ touches: Set<UITouch>) {
+        guard let touch = touches.first else { return }
+        let point = touch.location(in: self)
+
+        let dx = point.x - baseCenter.x
+        let dy = point.y - baseCenter.y
+        let distance = sqrt(dx * dx + dy * dy)
+        let maxDistance = bounds.width * 0.34
+
+        let clamped: CGPoint
+        if distance > maxDistance {
+            let scale = maxDistance / distance
+            clamped = CGPoint(x: baseCenter.x + dx * scale, y: baseCenter.y + dy * scale)
+        } else {
+            clamped = point
+        }
+
+        stick.center = clamped
+
+        let nx = (clamped.x - baseCenter.x) / maxDistance
+        let ny = (clamped.y - baseCenter.y) / maxDistance
+        onMove?(nx, ny)
+    }
+
+    private func reset() {
+        stick.center = baseCenter
+        onMove?(0, 0)
+    }
+}
