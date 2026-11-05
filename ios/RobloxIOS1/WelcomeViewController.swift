@@ -1,114 +1,272 @@
 import UIKit
 
+/// Classic Roblox-inspired mobile home screen.
 final class WelcomeViewController: UIViewController {
+
     private let nameField = UITextField()
     private let serverField = UITextField()
-    private let statusLabel = UILabel()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = ClassicTheme.background
+        view.backgroundColor = UIColor(red: 0.93, green: 0.93, blue: 0.94, alpha: 1)
+        navigationController?.setNavigationBarHidden(true, animated: false)
         buildInterface()
     }
 
     private func buildInterface() {
+        // Top blue bar (classic Roblox style)
+        let topBar = UIView()
+        topBar.backgroundColor = UIColor(red: 0.05, green: 0.40, blue: 0.73, alpha: 1)
+        topBar.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(topBar)
+
+        let logo = UILabel()
+        logo.text = "ROBLOX"
+        logo.font = .systemFont(ofSize: 20, weight: .black)
+        logo.textColor = .white
+        logo.translatesAutoresizingMaskIntoConstraints = false
+        topBar.addSubview(logo)
+
         let scroll = UIScrollView()
         scroll.translatesAutoresizingMaskIntoConstraints = false
+        scroll.alwaysBounceVertical = true
         view.addSubview(scroll)
-        NSLayoutConstraint.activate([
-            scroll.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            scroll.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scroll.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scroll.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
 
         let content = UIStackView()
         content.axis = .vertical
-        content.spacing = 18
+        content.spacing = 16
         content.translatesAutoresizingMaskIntoConstraints = false
         scroll.addSubview(content)
+
+        // Hello header
+        let helloRow = UIStackView()
+        helloRow.axis = .horizontal
+        helloRow.spacing = 12
+        helloRow.alignment = .center
+
+        let avatar = UIView()
+        avatar.backgroundColor = UIColor(red: 0.20, green: 0.55, blue: 0.90, alpha: 1)
+        avatar.layer.cornerRadius = 28
+        avatar.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            content.topAnchor.constraint(equalTo: scroll.contentLayoutGuide.topAnchor, constant: 34),
-            content.leadingAnchor.constraint(equalTo: scroll.frameLayoutGuide.leadingAnchor, constant: 22),
-            content.trailingAnchor.constraint(equalTo: scroll.frameLayoutGuide.trailingAnchor, constant: -22),
-            content.bottomAnchor.constraint(equalTo: scroll.contentLayoutGuide.bottomAnchor, constant: -28)
+            avatar.widthAnchor.constraint(equalToConstant: 56),
+            avatar.heightAnchor.constraint(equalToConstant: 56)
         ])
 
-        let wordmark = UILabel()
-        wordmark.text = "ROBLOX"
-        wordmark.font = .systemFont(ofSize: 37, weight: .black)
-        wordmark.textColor = ClassicTheme.darkBlue
-        wordmark.textAlignment = .center
-        content.addArrangedSubview(wordmark)
-
-        let subtitle = UILabel()
-        subtitle.text = "A classic mobile experience"
-        subtitle.font = .systemFont(ofSize: 14)
-        subtitle.textColor = ClassicTheme.muted
-        subtitle.textAlignment = .center
-        content.addArrangedSubview(subtitle)
-
-        let panel = ClassicTheme.makePanel()
-        let panelStack = UIStackView()
-        panelStack.axis = .vertical
-        panelStack.spacing = 12
-        panelStack.translatesAutoresizingMaskIntoConstraints = false
-        panel.addSubview(panelStack)
+        let avatarLabel = UILabel()
+        avatarLabel.text = "🙂"
+        avatarLabel.font = .systemFont(ofSize: 26)
+        avatarLabel.textAlignment = .center
+        avatarLabel.translatesAutoresizingMaskIntoConstraints = false
+        avatar.addSubview(avatarLabel)
         NSLayoutConstraint.activate([
-            panelStack.topAnchor.constraint(equalTo: panel.topAnchor, constant: 18),
-            panelStack.leadingAnchor.constraint(equalTo: panel.leadingAnchor, constant: 16),
-            panelStack.trailingAnchor.constraint(equalTo: panel.trailingAnchor, constant: -16),
-            panelStack.bottomAnchor.constraint(equalTo: panel.bottomAnchor, constant: -18)
+            avatarLabel.centerXAnchor.constraint(equalTo: avatar.centerXAnchor),
+            avatarLabel.centerYAnchor.constraint(equalTo: avatar.centerYAnchor)
         ])
 
-        let heading = UILabel()
-        heading.text = "Welcome"
-        heading.font = .boldSystemFont(ofSize: 22)
-        heading.textColor = ClassicTheme.text
-        panelStack.addArrangedSubview(heading)
+        let helloStack = UIStackView()
+        helloStack.axis = .vertical
+        helloStack.spacing = 2
 
-        let explanation = UILabel()
-        explanation.text = "Join the experiment as a guest. This connects only to the independent test server—not to Roblox accounts or services."
-        explanation.font = .systemFont(ofSize: 14)
-        explanation.textColor = ClassicTheme.muted
-        explanation.numberOfLines = 0
-        panelStack.addArrangedSubview(explanation)
+        let helloLabel = UILabel()
+        helloLabel.text = "Hello,"
+        helloLabel.font = .systemFont(ofSize: 22, weight: .semibold)
+        helloLabel.textColor = UIColor(red: 0.15, green: 0.15, blue: 0.18, alpha: 1)
 
-        ClassicTheme.styleTextField(nameField, placeholder: "Guest display name")
+        let subHello = UILabel()
+        subHello.text = "Guest access • Independent server"
+        subHello.font = .systemFont(ofSize: 13)
+        subHello.textColor = UIColor(red: 0.45, green: 0.45, blue: 0.48, alpha: 1)
+
+        helloStack.addArrangedSubview(helloLabel)
+        helloStack.addArrangedSubview(subHello)
+
+        helloRow.addArrangedSubview(avatar)
+        helloRow.addArrangedSubview(helloStack)
+
+        // Join card
+        let joinCard = makeCard()
+        let joinStack = UIStackView()
+        joinStack.axis = .vertical
+        joinStack.spacing = 12
+        joinStack.translatesAutoresizingMaskIntoConstraints = false
+        joinCard.addSubview(joinStack)
+
+        let joinTitle = UILabel()
+        joinTitle.text = "Play"
+        joinTitle.font = .systemFont(ofSize: 18, weight: .bold)
+        joinTitle.textColor = UIColor(red: 0.15, green: 0.15, blue: 0.18, alpha: 1)
+
+        styleField(nameField, placeholder: "Display name")
         nameField.text = "Guest"
-        nameField.returnKeyType = .done
-        panelStack.addArrangedSubview(nameField)
 
-        ClassicTheme.styleTextField(serverField, placeholder: "WebSocket server address")
+        styleField(serverField, placeholder: "Server address (ws://...)")
         serverField.text = "ws://127.0.0.1:8080"
         serverField.keyboardType = .URL
+        serverField.autocapitalizationType = .none
         serverField.autocorrectionType = .no
-        panelStack.addArrangedSubview(serverField)
 
-        let playButton = ClassicTheme.makeButton(title: "ENTER WORLD")
+        let playButton = UIButton(type: .system)
+        playButton.setTitle("ENTER WORLD", for: .normal)
+        playButton.setTitleColor(.white, for: .normal)
+        playButton.titleLabel?.font = .boldSystemFont(ofSize: 16)
+        playButton.backgroundColor = UIColor(red: 0.05, green: 0.40, blue: 0.73, alpha: 1)
+        playButton.layer.cornerRadius = 8
+        playButton.contentEdgeInsets = UIEdgeInsets(top: 14, left: 16, bottom: 14, right: 16)
         playButton.addTarget(self, action: #selector(playTapped), for: .touchUpInside)
-        panelStack.addArrangedSubview(playButton)
 
         let lobbyButton = UIButton(type: .system)
         lobbyButton.setTitle("Open Lobby Only", for: .normal)
+        lobbyButton.setTitleColor(UIColor(red: 0.05, green: 0.40, blue: 0.73, alpha: 1), for: .normal)
         lobbyButton.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
         lobbyButton.addTarget(self, action: #selector(lobbyTapped), for: .touchUpInside)
-        panelStack.addArrangedSubview(lobbyButton)
 
-        statusLabel.text = "Foundation build • Guest access"
-        statusLabel.font = .systemFont(ofSize: 12)
-        statusLabel.textColor = ClassicTheme.muted
-        statusLabel.textAlignment = .center
-        panelStack.addArrangedSubview(statusLabel)
+        joinStack.addArrangedSubview(joinTitle)
+        joinStack.addArrangedSubview(nameField)
+        joinStack.addArrangedSubview(serverField)
+        joinStack.addArrangedSubview(playButton)
+        joinStack.addArrangedSubview(lobbyButton)
 
-        content.addArrangedSubview(panel)
+        NSLayoutConstraint.activate([
+            joinStack.topAnchor.constraint(equalTo: joinCard.topAnchor, constant: 16),
+            joinStack.leadingAnchor.constraint(equalTo: joinCard.leadingAnchor, constant: 16),
+            joinStack.trailingAnchor.constraint(equalTo: joinCard.trailingAnchor, constant: -16),
+            joinStack.bottomAnchor.constraint(equalTo: joinCard.bottomAnchor, constant: -16)
+        ])
 
-        let footer = UILabel()
-        footer.text = "Independent preservation experiment"
-        footer.font = .systemFont(ofSize: 12)
-        footer.textColor = ClassicTheme.muted
-        footer.textAlignment = .center
-        content.addArrangedSubview(footer)
+        // Continue Playing style section
+        let continueTitle = sectionTitle("Continue Playing")
+
+        let gamesRow = UIScrollView()
+        gamesRow.showsHorizontalScrollIndicator = false
+        gamesRow.translatesAutoresizingMaskIntoConstraints = false
+
+        let gamesStack = UIStackView()
+        gamesStack.axis = .horizontal
+        gamesStack.spacing = 12
+        gamesStack.translatesAutoresizingMaskIntoConstraints = false
+        gamesRow.addSubview(gamesStack)
+
+        let gameNames = ["Baseplate", "Obby", "Plaza", "Classic"]
+        let gameColors: [UIColor] = [
+            UIColor(red: 0.45, green: 0.70, blue: 0.35, alpha: 1),
+            UIColor(red: 0.90, green: 0.45, blue: 0.25, alpha: 1),
+            UIColor(red: 0.25, green: 0.55, blue: 0.85, alpha: 1),
+            UIColor(red: 0.70, green: 0.40, blue: 0.80, alpha: 1)
+        ]
+
+        for (i, name) in gameNames.enumerated() {
+            gamesStack.addArrangedSubview(makeGameCard(title: name, color: gameColors[i]))
+        }
+
+        NSLayoutConstraint.activate([
+            gamesStack.topAnchor.constraint(equalTo: gamesRow.topAnchor),
+            gamesStack.leadingAnchor.constraint(equalTo: gamesRow.leadingAnchor),
+            gamesStack.trailingAnchor.constraint(equalTo: gamesRow.trailingAnchor),
+            gamesStack.bottomAnchor.constraint(equalTo: gamesRow.bottomAnchor),
+            gamesStack.heightAnchor.constraint(equalTo: gamesRow.heightAnchor),
+            gamesRow.heightAnchor.constraint(equalToConstant: 120)
+        ])
+
+        let note = UILabel()
+        note.text = "This is an independent multiplayer experiment.\nNot affiliated with Roblox."
+        note.font = .systemFont(ofSize: 12)
+        note.textColor = UIColor(red: 0.45, green: 0.45, blue: 0.48, alpha: 1)
+        note.numberOfLines = 0
+        note.textAlignment = .center
+
+        content.addArrangedSubview(helloRow)
+        content.addArrangedSubview(joinCard)
+        content.addArrangedSubview(continueTitle)
+        content.addArrangedSubview(gamesRow)
+        content.addArrangedSubview(note)
+
+        NSLayoutConstraint.activate([
+            topBar.topAnchor.constraint(equalTo: view.topAnchor),
+            topBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            topBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            topBar.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 48),
+
+            logo.leadingAnchor.constraint(equalTo: topBar.leadingAnchor, constant: 16),
+            logo.bottomAnchor.constraint(equalTo: topBar.bottomAnchor, constant: -12),
+
+            scroll.topAnchor.constraint(equalTo: topBar.bottomAnchor),
+            scroll.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scroll.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scroll.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+            content.topAnchor.constraint(equalTo: scroll.contentLayoutGuide.topAnchor, constant: 16),
+            content.leadingAnchor.constraint(equalTo: scroll.frameLayoutGuide.leadingAnchor, constant: 16),
+            content.trailingAnchor.constraint(equalTo: scroll.frameLayoutGuide.trailingAnchor, constant: -16),
+            content.bottomAnchor.constraint(equalTo: scroll.contentLayoutGuide.bottomAnchor, constant: -24)
+        ])
+    }
+
+    private func makeCard() -> UIView {
+        let card = UIView()
+        card.backgroundColor = .white
+        card.layer.cornerRadius = 10
+        card.layer.shadowColor = UIColor.black.cgColor
+        card.layer.shadowOpacity = 0.06
+        card.layer.shadowRadius = 6
+        card.layer.shadowOffset = CGSize(width: 0, height: 2)
+        return card
+    }
+
+    private func sectionTitle(_ text: String) -> UILabel {
+        let label = UILabel()
+        label.text = text
+        label.font = .systemFont(ofSize: 18, weight: .bold)
+        label.textColor = UIColor(red: 0.15, green: 0.15, blue: 0.18, alpha: 1)
+        return label
+    }
+
+    private func makeGameCard(title: String, color: UIColor) -> UIView {
+        let card = UIView()
+        card.backgroundColor = .white
+        card.layer.cornerRadius = 8
+        card.clipsToBounds = true
+        card.translatesAutoresizingMaskIntoConstraints = false
+
+        let thumb = UIView()
+        thumb.backgroundColor = color
+        thumb.translatesAutoresizingMaskIntoConstraints = false
+
+        let label = UILabel()
+        label.text = title
+        label.font = .systemFont(ofSize: 13, weight: .semibold)
+        label.textColor = UIColor(red: 0.15, green: 0.15, blue: 0.18, alpha: 1)
+        label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
+
+        card.addSubview(thumb)
+        card.addSubview(label)
+
+        NSLayoutConstraint.activate([
+            card.widthAnchor.constraint(equalToConstant: 110),
+            card.heightAnchor.constraint(equalToConstant: 120),
+
+            thumb.topAnchor.constraint(equalTo: card.topAnchor),
+            thumb.leadingAnchor.constraint(equalTo: card.leadingAnchor),
+            thumb.trailingAnchor.constraint(equalTo: card.trailingAnchor),
+            thumb.heightAnchor.constraint(equalToConstant: 84),
+
+            label.topAnchor.constraint(equalTo: thumb.bottomAnchor, constant: 6),
+            label.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 4),
+            label.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -4)
+        ])
+
+        return card
+    }
+
+    private func styleField(_ field: UITextField, placeholder: String) {
+        field.placeholder = placeholder
+        field.backgroundColor = UIColor(red: 0.96, green: 0.96, blue: 0.97, alpha: 1)
+        field.layer.cornerRadius = 8
+        field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 1))
+        field.leftViewMode = .always
+        field.font = .systemFont(ofSize: 16)
+        field.heightAnchor.constraint(equalToConstant: 44).isActive = true
     }
 
     private func validatedCredentials() -> (name: String, address: String)? {
