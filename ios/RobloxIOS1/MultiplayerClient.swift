@@ -3,6 +3,11 @@ import Foundation
 struct LobbyPlayer: Equatable {
     let id: String
     let displayName: String
+    var x: Double = 0
+    var y: Double = 0
+    var z: Double = 0
+    var rotY: Double = 0
+    var anim: String = "idle"
 }
 
 struct LobbyChatMessage {
@@ -16,6 +21,7 @@ final class MultiplayerClient {
     enum Event {
         case connected(playerID: String, roomID: String)
         case presence([LobbyPlayer])
+        case snapshot([LobbyPlayer])
         case playerJoined(LobbyPlayer)
         case playerLeft(String)
         case chat(LobbyChatMessage)
@@ -27,6 +33,7 @@ final class MultiplayerClient {
 
     private var webSocket: URLSessionWebSocketTask?
     private var receiveTask: Task<Void, Never>?
+    private(set) var localPlayerID: String?
 
     func connect(serverAddress: String, displayName: String) throws {
         guard let url = URL(string: serverAddress),
@@ -37,15 +44,22 @@ final class MultiplayerClient {
         }
 
         disconnect()
+
         let session = URLSession(configuration: .default)
         let task = session.webSocketTask(with: url)
         webSocket = task
         task.resume()
-        let joinObject: [String: String] = ["type": "join", "displayName": displayName]
+
+        let joinObject: [String: String] = [
+            "type": "join",
+            "displayName": displayName
+        ]
+
         guard let joinData = try? JSONSerialization.data(withJSONObject: joinObject),
               let joinText = String(data: joinData, encoding: .utf8) else {
             throw ClientError.invalidAddress
         }
+
         receiveTask = Task { [weak self] in
             guard let self, let activeSocket = self.webSocket else { return }
             do {
@@ -53,17 +67,33 @@ final class MultiplayerClient {
                 await self.receiveMessages()
             } catch {
                 if !Task.isCancelled {
-                    self.onEvent?(.error("Connection failed: \\(error.localizedDescription)"))
+                    self.onEvent?(.error("Connection failed: \(error.localizedDescription)"))
                     self.onEvent?(.disconnected)
                 }
             }
         }
     }
 
+    /// Send local player state (position + animation) to the server.
+    func sendState(x: Double, y: Double, z: Double, rotY: Double, anim: String) {
+        let payload: [String: Any] = [
+            "type": "state",
+            "x": x,
+            "y": y,
+            "z": z,
+            "rotY": rotY,
+            "anim": anim
+        ]
+        sendJSON(payload)
+    }
+
     func sendChat(_ text: String) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
-        sendJSON(["type": "chat", "text": String(trimmed.prefix(240))])
+        sendJSON([
+            "type": "chat",
+            "text": String(trimmed.prefix(240))
+        ])
     }
 
     func disconnect() {
@@ -71,12 +101,16 @@ final class MultiplayerClient {
         receiveTask = nil
         webSocket?.cancel(with: .goingAway, reason: nil)
         webSocket = nil
+        localPlayerID = nil
     }
 
-    private func sendJSON(_ object: [String: String]) {
+    // MARK: - Private
+
+    private func sendJSON(_ object: [String: Any]) {
         guard let webSocket,
               let data = try? JSONSerialization.data(withJSONObject: object),
               let text = String(data: data, encoding: .utf8) else { return }
+
         webSocket.send(.string(text)) { [weak self] error in
             guard let error else { return }
             Task { @MainActor in
@@ -116,42 +150,72 @@ final class MultiplayerClient {
 
         switch type {
         case "welcome":
+            let playerID = object["playerId"] as? String ?? ""
+            localPlayerID = playerID
             onEvent?(.connected(
-                playerID: object["playerId"] as? String ?? "",
+                playerID: playerID,
                 roomID: object["roomId"] as? String ?? "lobby"
             ))
+
         case "presence":
-            let players = (object["players"] as? [[String: Any]] ?? []).compactMap { item -> LobbyPlayer? in
-                guard let id = item["id"] as? String,
-                      let name = item["displayName"] as? String else { return nil }
-                return LobbyPlayer(id: id, displayName: name)
-            }
-            onEvent?(.presence(players))
+            onEvent?(.presence(parsePlayers(object["players"])))
+
+        case "snapshot":
+            onEvent?(.snapshot(parsePlayers(object["players"])))
+
         case "player-joined":
             if let item = object["player"] as? [String: Any],
-               let id = item["id"] as? String,
-               let name = item["displayName"] as? String {
-                onEvent?(.playerJoined(LobbyPlayer(id: id, displayName: name)))
+               let player = parsePlayer(item) {
+                onEvent?(.playerJoined(player))
             }
+
         case "player-left":
             if let id = object["playerId"] as? String {
                 onEvent?(.playerLeft(id))
             }
+
         case "chat":
             if let id = object["playerId"] as? String,
                let name = object["displayName"] as? String,
                let message = object["text"] as? String {
-                onEvent?(.chat(LobbyChatMessage(playerID: id, displayName: name, text: message)))
+                onEvent?(.chat(LobbyChatMessage(
+                    playerID: id,
+                    displayName: name,
+                    text: message
+                )))
             }
+
         case "error":
             onEvent?(.error(object["message"] as? String ?? "The server rejected a request."))
+
         default:
             break
         }
     }
 
+    private func parsePlayers(_ raw: Any?) -> [LobbyPlayer] {
+        guard let array = raw as? [[String: Any]] else { return [] }
+        return array.compactMap { parsePlayer($0) }
+    }
+
+    private func parsePlayer(_ item: [String: Any]) -> LobbyPlayer? {
+        guard let id = item["id"] as? String,
+              let name = item["displayName"] as? String else { return nil }
+
+        return LobbyPlayer(
+            id: id,
+            displayName: name,
+            x: item["x"] as? Double ?? 0,
+            y: item["y"] as? Double ?? 0,
+            z: item["z"] as? Double ?? 0,
+            rotY: item["rotY"] as? Double ?? 0,
+            anim: item["anim"] as? String ?? "idle"
+        )
+    }
+
     enum ClientError: LocalizedError {
         case invalidAddress
+
         var errorDescription: String? {
             "Enter a valid WebSocket address beginning with ws:// or wss://."
         }
