@@ -42,6 +42,8 @@
         A1000000000000000000000A /* MultiplayerClient.swift */,
         A1000000000000000000000B /* WelcomeViewController.swift */,
         A1000000000000000000000C /* LobbyViewController.swift */,
+        A10000000000000000000020 /* PlayerNode.swift */,
+        A10000000000000000000021 /* GameViewController.swift */,
         A1000000000000000000001B /* Info.plist */
       );
     };
@@ -50,6 +52,8 @@
     A1000000000000000000000A = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiplayerClient.swift; sourceTree = "<group>"; };
     A1000000000000000000000B = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
     A1000000000000000000000C = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LobbyViewController.swift; sourceTree = "<group>"; };
+    A10000000000000000000020 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerNode.swift; sourceTree = "<group>"; };
+    A10000000000000000000021 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
     A1000000000000000000001B /* Info.plist */ = { isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
     A10000000000000000000007 /* RobloxIOS1.app */ = { isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RobloxIOS1.app; sourceTree = BUILT_PRODUCTS_DIR; };
     A1000000000000000000000D /* Sources */ = {
@@ -60,7 +64,9 @@
         A1000000000000000000000F,
         A10000000000000000000010,
         A10000000000000000000011,
-        A10000000000000000000012
+        A10000000000000000000012,
+        A10000000000000000000022,
+        A10000000000000000000023
       );
       runOnlyForDeploymentPostprocessing = 0;
     };
@@ -69,6 +75,8 @@
     A10000000000000000000010 = { isa = PBXBuildFile; fileRef = A1000000000000000000000A; };
     A10000000000000000000011 = { isa = PBXBuildFile; fileRef = A1000000000000000000000B; };
     A10000000000000000000012 = { isa = PBXBuildFile; fileRef = A1000000000000000000000C; };
+    A10000000000000000000022 = { isa = PBXBuildFile; fileRef = A10000000000000000000020; };
+    A10000000000000000000023 = { isa = PBXBuildFile; fileRef = A10000000000000000000021; };
     A10000000000000000000013 /* Frameworks */ = { isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
     A10000000000000000000014 /* Resources */ = { isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
     A10000000000000000000005 /* RobloxIOS1 target */ = {
