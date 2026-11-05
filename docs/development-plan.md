@@ -1,51 +1,95 @@
-# Development plan
+# Development Plan
 
-## Phase 0 — Repository and preservation
+## Vision
 
-- [x] Create a private repository.
-- [x] Add project architecture and development notes.
-- [ ] Keep an untouched backup of the supplied historical IPA outside source control.
-- [ ] Record provenance and hashes for files used during analysis.
+Build a nostalgic + modern multiplayer experience inspired by early Roblox iOS.
 
-## Phase 1 — Local server prototype
+- **Nostalgic**: Blocky characters, classic proportions, clean early-mobile influence, simple world language.
+- **Modern**: Smooth animations, good camera feel, responsive controls, solid multiplayer foundation.
 
-- [x] Create a WebSocket server scaffold.
-- [x] Add a two-client integration test for joining, presence, chat, and leaving.
-- [x] Add heartbeat ping/pong and stale-session cleanup.
-- [x] Add message-size limits and basic message/chat rate limits.
-- [x] Add automated tests for core lobby behavior and invalid message types.
-- [x] Add a manual two-client demo command.
-- [ ] Install dependencies and run the automated test suite on a machine with network access.
-- [ ] Add configurable room capacity and explicit room creation.
-- [ ] Add structured logging and deployment-grade graceful shutdown.
+We complete the **basic foundation** first. Advanced systems are paused until explicitly approved.
 
-## Phase 2 — Client foundation
+---
 
-- [x] Choose Swift + UIKit for a native modern iOS reconstruction.
-- [x] Create an Xcode project targeting iOS 15+ and 64-bit devices.
-- [x] Add a classic-inspired welcome screen and guest display name.
-- [x] Add configurable WebSocket connection and lobby chat/presence UI.
-- [ ] Build and run the Xcode project in Xcode; compilation and device testing have not yet been performed.
-- [ ] Test the client against the local server.
+## Phase 1 — Foundation (Current Focus)
 
-## Phase 3 — Multiplayer prototype
+### 1. Authentication & Session
+- [x] Temporary guest identities
+- [ ] Cleaner guest login flow
+- [ ] Stable session handling
+- [ ] Better connection / reconnection behavior
+- [ ] Clear error states on the client
 
-- [ ] Add room selection and player presence UI.
-- [ ] Add chat UI with safe text handling.
-- [ ] Build a simple independent 3D test scene.
-- [ ] Add server-authoritative position updates only after the 3D scene exists.
+### 2. Character Foundation
+- [ ] Simple blocky character model
+- [ ] Name tag above character
+- [ ] Local player vs other player distinction
+- [ ] Basic color support
 
-## Phase 4 — iOS packaging
+### 3. Core Animations
+- [ ] Idle
+- [ ] Walk
+- [ ] Jump
+- [ ] Fall / Land
+- [ ] Animation state driven by movement
+- [ ] Networked animation state so others see the correct animation
 
-- [ ] Build for a supported 64-bit iOS target.
-- [ ] Test on a device with a development-signed build.
-- [ ] Package and sign a test IPA.
-- [ ] Document ESign installation steps after the build is validated.
+### 4. Camera
+- [ ] Third-person follow camera
+- [ ] Smooth spring / lag
+- [ ] Rotate via touch / mouse
+- [ ] Limited zoom
 
-## Security and release gate
+### 5. Movement
+- [ ] Walk with light acceleration
+- [ ] Jump
+- [ ] Basic gravity
+- [ ] Simple ground collision
+- [ ] Responsive controls (touch + keyboard/mouse)
 
-Do not expose this prototype publicly yet. Before any public deployment, add TLS/WSS, a deliberate origin policy, connection and room limits, stronger abuse controls, moderation/reporting, operational monitoring, and a privacy review. Never collect Roblox passwords, cookies, or tokens.
+### 6. Multiplayer Sync
+- [ ] Server-authoritative position
+- [ ] Animation state sync
+- [ ] Snapshot broadcasting at fixed rate
+- [ ] Client-side interpolation for remote players
+- [ ] Join / leave still works cleanly
 
-## Scope guardrails
+### 7. UI Foundation
+- [x] Welcome / guest join screen
+- [x] Lobby + chat (current)
+- [ ] In-game HUD
+- [ ] Smooth UI transitions
+- [ ] Clear connection status
 
-This is an independent multiplayer experiment, not an attempt to impersonate Roblox services or use real Roblox credentials. Preserve the original IPA and make changes in a separate project.
+---
+
+## Phase 2 — Advanced (Paused)
+
+These will not be started until Phase 1 is in a good state and explicitly approved:
+
+- Multiple rooms / instances
+- Improved physics and collision
+- Character customization
+- Particles and visual effects
+- Sound design
+- Emotes
+- More complex world interactions
+- Possible migration of core to C++ or Rust for performance
+- Account system (beyond guests)
+
+---
+
+## Current Tech Stack
+
+- **Server**: Node.js + WebSocket (prototype)
+- **Client**: Swift + UIKit
+- Future consideration: C++ or Rust core for simulation + networking
+
+---
+
+## Rules for this phase
+
+- Prefer working, feel-good basics over incomplete advanced systems
+- Keep the protocol clean and explicit
+- Do not add account systems or external services yet
+- Keep the project independent from official Roblox services
