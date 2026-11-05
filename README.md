@@ -24,6 +24,7 @@ Create a **nostalgic + modern** multiplayer experience:
 - [x] Third-person camera with spring follow
 - [x] Local movement + jump + gravity
 - [x] Remote players appear and sync in the world
+- [x] GitHub Action to build unsigned IPA
 - [ ] Client-side interpolation (polish)
 - [ ] Touch joystick (polish)
 - [ ] Limited camera zoom (polish)
@@ -38,9 +39,9 @@ Create a **nostalgic + modern** multiplayer experience:
 
 ## Requirements
 
-- Node.js 20 or newer
-- Xcode 15+
+- Node.js 20 or newer (for the server)
 - npm
+- An iPhone + IPA signing tool (for testing the client)
 
 ## Run the server
 
@@ -54,19 +55,27 @@ npm start
 Default: `ws://127.0.0.1:8080`  
 For local network testing: `HOST=0.0.0.0 npm start`
 
-## iOS Client
+## Get the iOS app (No Mac needed)
 
-```sh
-open ios/RobloxIOS1.xcodeproj
-```
+This repo has a GitHub Action that builds an **unsigned IPA**.
 
+1. Go to the repo **Actions** tab
+2. Open **Build Unsigned IPA**
+3. Run the workflow (or wait for a push to `ios/`)
+4. Download the artifact `RobloxIOS1-unsigned-ipa`
+5. Sign the IPA on your iPhone with your tools
+6. Install and test
+
+Full instructions: [`docs/build-ipa.md`](docs/build-ipa.md)
+
+### In the app
 1. Enter a guest name
-2. Enter the server address
+2. Enter your server address (example: `ws://192.168.1.25:8080`)
 3. Tap **ENTER WORLD**
 
 Controls:
 - Drag to look
-- WASD / Arrow keys to move
+- WASD / Arrow keys to move (simulator / keyboard)
 - Space to jump
 
 ## Protocol
@@ -96,11 +105,7 @@ Controls:
 roblox-ios-1-multiplayer/
 ├── multiplayer-server/     # Node.js server (state + snapshots)
 ├── ios/                    # Swift + SceneKit client
-│   └── RobloxIOS1/
-│       ├── GameViewController.swift
-│       ├── PlayerNode.swift
-│       ├── MultiplayerClient.swift
-│       └── ...
+├── .github/workflows/      # Unsigned IPA builder
 ├── docs/
 └── README.md
 ```
