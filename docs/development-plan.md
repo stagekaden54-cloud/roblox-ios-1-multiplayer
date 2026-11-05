@@ -15,10 +15,10 @@ We complete the **basic foundation** first. Advanced systems are paused until ex
 
 ### 1. Authentication & Session
 - [x] Temporary guest identities
-- [ ] Cleaner guest login flow
-- [ ] Stable session handling
-- [ ] Better connection / reconnection behavior
-- [ ] Clear error states on the client
+- [x] Cleaner guest login flow
+- [x] Stable session handling
+- [x] Better connection / reconnection behavior (client side)
+- [x] Clear error states on the client
 
 ### 2. Character Foundation
 - [ ] Simple blocky character model
@@ -48,18 +48,19 @@ We complete the **basic foundation** first. Advanced systems are paused until ex
 - [ ] Responsive controls (touch + keyboard/mouse)
 
 ### 6. Multiplayer Sync
-- [ ] Server-authoritative position
-- [ ] Animation state sync
-- [ ] Snapshot broadcasting at fixed rate
+- [x] Server stores position + animation state
+- [x] 20Hz snapshot broadcasting
+- [x] Client can send state updates
+- [x] Client receives presence + snapshots
 - [ ] Client-side interpolation for remote players
-- [ ] Join / leave still works cleanly
+- [x] Join / leave still works cleanly
 
 ### 7. UI Foundation
 - [x] Welcome / guest join screen
-- [x] Lobby + chat (current)
+- [x] Lobby + chat
 - [ ] In-game HUD
 - [ ] Smooth UI transitions
-- [ ] Clear connection status
+- [x] Clear connection status
 
 ---
 
@@ -81,7 +82,7 @@ These will not be started until Phase 1 is in a good state and explicitly approv
 
 ## Current Tech Stack
 
-- **Server**: Node.js + WebSocket (prototype)
+- **Server**: Node.js + WebSocket (now with state + snapshots)
 - **Client**: Swift + UIKit
 - Future consideration: C++ or Rust core for simulation + networking
 
