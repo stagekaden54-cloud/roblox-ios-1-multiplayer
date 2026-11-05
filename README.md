@@ -12,18 +12,21 @@ Create a **nostalgic + modern** multiplayer experience:
 
 We are building the **foundation first**. Advanced systems come later.
 
-## Current Foundation Goals
+## Current Foundation Progress
 
-### Phase 1 — Core Basics (In Progress)
+### Phase 1 — Core Basics
 - [x] WebSocket server with guest identities, presence, and chat
 - [x] Basic iOS client (welcome screen, lobby, chat)
-- [ ] Improved authentication / guest session flow
+- [x] Improved authentication / guest session flow
+- [x] Server-side player state (position + animation)
+- [x] 20Hz snapshot broadcasting
+- [x] Client support for sending/receiving state
 - [ ] Basic character representation
 - [ ] Core animations (idle, walk, jump, fall)
 - [ ] Third-person camera
 - [ ] Local movement
-- [ ] Multiplayer position + animation sync
-- [ ] Clean UI foundation with transitions
+- [ ] Client-side interpolation
+- [ ] Clean in-game UI foundation
 
 ### Phase 2 — Advanced (Paused — waiting for approval)
 - Better physics & collision
@@ -64,15 +67,15 @@ See `ios/README.md` for connection instructions.
 **Client → Server**
 - `{ "type": "join", "displayName": "Guest" }`
 - `{ "type": "chat", "text": "Hello" }`
+- `{ "type": "state", "x": 0, "y": 0, "z": 0, "rotY": 0, "anim": "idle" }`
 
 **Server → Client**
-- `welcome` — player ID + room ID
-- `presence` — current players
+- `welcome` — player ID + room ID + initial state
+- `presence` — current players (includes position + anim)
+- `snapshot` — 20Hz world state
 - `player-joined` / `player-left`
 - `chat`
 - `error`
-
-Movement and animation messages will be added during the foundation phase.
 
 ## Safety Notes
 
@@ -85,8 +88,8 @@ Movement and animation messages will be added during the foundation phase.
 
 ```
 roblox-ios-1-multiplayer/
-├── multiplayer-server/     # Current Node.js prototype server
+├── multiplayer-server/     # Node.js server (state + snapshots)
 ├── ios/                    # Swift + UIKit client
-├── docs/                   # Architecture & planning
+├── docs/                   # Architecture, plan, art direction
 └── README.md
 ```
