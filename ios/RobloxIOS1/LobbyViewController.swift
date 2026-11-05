@@ -27,6 +27,7 @@ final class LobbyViewController: UIViewController, UITableViewDataSource, UITabl
         title = "Lobby"
         buildInterface()
         client.onEvent = { [weak self] event in self?.handle(event) }
+
         do {
             try client.connect(serverAddress: serverAddress, displayName: displayName)
             connectionLabel.text = "Connecting…"
@@ -133,19 +134,30 @@ final class LobbyViewController: UIViewController, UITableViewDataSource, UITabl
         case .connected(_, let roomID):
             connectionLabel.text = "Connected • Room: \(roomID)"
             appendLine("Welcome, \(displayName)!")
+
         case .presence(let currentPlayers):
             players = currentPlayers
             playersTable.reloadData()
+
+        case .snapshot(let currentPlayers):
+            // Keep lobby list fresh when snapshots arrive
+            players = currentPlayers
+            playersTable.reloadData()
+
         case .playerJoined(let player):
             appendLine("\(player.displayName) joined the server.")
+
         case .playerLeft(let id):
             if let player = players.first(where: { $0.id == id }) {
                 appendLine("\(player.displayName) left the server.")
             }
+
         case .chat(let message):
             appendLine("\(message.displayName): \(message.text)")
+
         case .error(let message):
             appendLine("Notice: \(message)")
+
         case .disconnected:
             connectionLabel.text = "Disconnected"
         }
@@ -153,10 +165,14 @@ final class LobbyViewController: UIViewController, UITableViewDataSource, UITabl
 
     private func appendLine(_ line: String) {
         lines.append(line)
-        if lines.count > 150 { lines.removeFirst(lines.count - 150) }
+        if lines.count > 150 {
+            lines.removeFirst(lines.count - 150)
+        }
         chatView.text = lines.joined(separator: "\n")
         let end = NSRange(location: max(chatView.text.utf16.count - 1, 0), length: 1)
-        if chatView.text.utf16.count > 0 { chatView.scrollRangeToVisible(end) }
+        if chatView.text.utf16.count > 0 {
+            chatView.scrollRangeToVisible(end)
+        }
     }
 
     @objc private func sendTapped() {
