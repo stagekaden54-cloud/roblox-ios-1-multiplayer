@@ -1,0 +1,71 @@
+name: Build Unsigned IPA
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "ios/**"
+      - ".github/workflows/build-ipa.yml"
+
+jobs:
+  build:
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_15.4.app
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Build iOS app (unsigned)
+        working-directory: ios
+        run: |
+          set -euo pipefail
+
+          xcodebuild \
+            -project RobloxIOS1.xcodeproj \
+            -scheme RobloxIOS1 \
+            -configuration Release \
+            -destination "generic/platform=iOS" \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            PRODUCT_BUNDLE_IDENTIFIER="com.stagekaden54.robloxios1multiplayer" \
+            build
+
+      - name: Package unsigned IPA
+        working-directory: ios
+        run: |
+          set -euo pipefail
+
+          APP_PATH=$(find build/Build/Products/Release-iphoneos -name "*.app" | head -n 1)
+
+          if [ -z "$APP_PATH" ]; then
+            echo "ERROR: .app not found"
+            find build -type d -maxdepth 5 || true
+            exit 1
+          fi
+
+          echo "Found app: $APP_PATH"
+
+          mkdir -p Payload
+          cp -R "$APP_PATH" Payload/
+
+          # Create IPA (unsigned)
+          zip -r RobloxIOS1-unsigned.ipa Payload
+
+          ls -lh RobloxIOS1-unsigned.ipa
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: RobloxIOS1-unsigned-ipa
+          path: ios/RobloxIOS1-unsigned.ipa
+          if-no-files-found: error
+          retention-days: 14
