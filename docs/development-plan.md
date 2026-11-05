@@ -21,44 +21,46 @@ We complete the **basic foundation** first. Advanced systems are paused until ex
 - [x] Clear error states on the client
 
 ### 2. Character Foundation
-- [ ] Simple blocky character model
-- [ ] Name tag above character
-- [ ] Local player vs other player distinction
-- [ ] Basic color support
+- [x] Simple blocky character model (`PlayerNode`)
+- [x] Name tag above character
+- [x] Local player vs other player distinction
+- [x] Basic color support (local vs remote)
 
 ### 3. Core Animations
-- [ ] Idle
-- [ ] Walk
-- [ ] Jump
-- [ ] Fall / Land
-- [ ] Animation state driven by movement
-- [ ] Networked animation state so others see the correct animation
+- [x] Idle
+- [x] Walk
+- [x] Jump
+- [x] Fall
+- [x] Animation state driven by movement
+- [x] Networked animation state so others see the correct animation
 
 ### 4. Camera
-- [ ] Third-person follow camera
-- [ ] Smooth spring / lag
-- [ ] Rotate via touch / mouse
-- [ ] Limited zoom
+- [x] Third-person follow camera
+- [x] Smooth spring / lag
+- [x] Rotate via touch drag
+- [ ] Limited zoom (next polish pass)
 
 ### 5. Movement
-- [ ] Walk with light acceleration
-- [ ] Jump
-- [ ] Basic gravity
-- [ ] Simple ground collision
-- [ ] Responsive controls (touch + keyboard/mouse)
+- [x] Walk
+- [x] Jump
+- [x] Basic gravity
+- [x] Simple ground collision
+- [x] Keyboard controls (WASD / arrows + space)
+- [ ] Better touch joystick (next polish pass)
 
 ### 6. Multiplayer Sync
 - [x] Server stores position + animation state
 - [x] 20Hz snapshot broadcasting
 - [x] Client can send state updates
 - [x] Client receives presence + snapshots
-- [ ] Client-side interpolation for remote players
+- [x] Remote players appear and update in the world
+- [ ] Client-side interpolation (next polish pass)
 - [x] Join / leave still works cleanly
 
 ### 7. UI Foundation
 - [x] Welcome / guest join screen
-- [x] Lobby + chat
-- [ ] In-game HUD
+- [x] Lobby + chat (still available)
+- [x] In-game status + leave button
 - [ ] Smooth UI transitions
 - [x] Clear connection status
 
@@ -66,7 +68,7 @@ We complete the **basic foundation** first. Advanced systems are paused until ex
 
 ## Phase 2 — Advanced (Paused)
 
-These will not be started until Phase 1 is in a good state and explicitly approved:
+These will not be started until Phase 1 polish is in a good state and explicitly approved:
 
 - Multiple rooms / instances
 - Improved physics and collision
@@ -82,8 +84,8 @@ These will not be started until Phase 1 is in a good state and explicitly approv
 
 ## Current Tech Stack
 
-- **Server**: Node.js + WebSocket (now with state + snapshots)
-- **Client**: Swift + UIKit
+- **Server**: Node.js + WebSocket (state + 20Hz snapshots)
+- **Client**: Swift + UIKit + SceneKit
 - Future consideration: C++ or Rust core for simulation + networking
 
 ---
