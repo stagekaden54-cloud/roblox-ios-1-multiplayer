@@ -9,27 +9,40 @@ function waitFor(socket, type, timeoutMs = 2000) {
       socket.off("message", onMessage);
       reject(new Error("Timed out waiting for " + type));
     }, timeoutMs);
+
     function onMessage(raw) {
       let payload;
-      try { payload = JSON.parse(raw.toString()); } catch { return; }
+      try {
+        payload = JSON.parse(raw.toString());
+      } catch {
+        return;
+      }
       if (payload.type === type) {
         clearTimeout(timeout);
         socket.off("message", onMessage);
         resolve(payload);
       }
     }
+
     socket.on("message", onMessage);
   });
 }
 
 async function startTestServer() {
-  const server = createMultiplayerServer({ port: 0, host: "127.0.0.1", heartbeatIntervalMs: 0 });
+  const server = createMultiplayerServer({
+    port: 0,
+    host: "127.0.0.1",
+    heartbeatIntervalMs: 0,
+    snapshotIntervalMs: 0 // disable during tests unless needed
+  });
+
   await new Promise((resolve, reject) => {
     server.wss.once("listening", resolve);
     server.wss.once("error", reject);
   });
+
   const address = server.wss.address();
-  return { server, url: "ws://127.0.0.1:" + address.port };
+  return { server, url: `ws://127.0.0.1:${address.port}` };
 }
 
 function connect(url) {
@@ -51,15 +64,18 @@ test("two guests join, see presence, chat, and leave", async (t) => {
   const first = await connect(url);
   const firstWelcome = waitFor(first, "welcome");
   const firstPresence = waitFor(first, "presence");
+
   send(first, { type: "join", displayName: "  Player One  " });
   const welcome1 = await firstWelcome;
   assert.equal(welcome1.roomId, "lobby");
+  assert.ok(welcome1.playerId);
   assert.equal((await firstPresence).players[0].displayName, "Player One");
 
   const second = await connect(url);
   const joinedNotice = waitFor(first, "player-joined");
   const secondWelcome = waitFor(second, "welcome");
   const secondPresence = waitFor(second, "presence");
+
   send(second, { type: "join", displayName: "Player Two" });
   const welcome2 = await secondWelcome;
   assert.equal((await secondPresence).players.length, 2);
@@ -77,19 +93,61 @@ test("two guests join, see presence, chat, and leave", async (t) => {
   second.close();
   assert.equal((await leftNotice).playerId, welcome2.playerId);
   assert.equal((await updatedPresence).players.length, 1);
+
   first.close();
 });
 
-test("chat burst is rate limited without disconnecting the guest", async (t) => {
+test("state updates are accepted and reflected in presence shape", async (t) => {
   const { server, url } = await startTestServer();
   t.after(async () => server.close());
+
+  const client = await connect(url);
+  const welcome = waitFor(client, "welcome");
+  send(client, { type: "join", displayName: "Mover" });
+  await welcome;
+
+  send(client, {
+    type: "state",
+    x: 10,
+    y: 0,
+    z: -5,
+    rotY: 1.57,
+    anim: "walk"
+  });
+
+  // Give the server a moment to store state
+  await new Promise((r) => setTimeout(r, 30));
+
+  // Trigger presence by having another player join
+  const other = await connect(url);
+  const presence = waitFor(other, "presence");
+  send(other, { type: "join", displayName: "Observer" });
+  const list = await presence;
+
+  const mover = list.players.find((p) => p.displayName === "Mover");
+  assert.ok(mover);
+  assert.equal(mover.x, 10);
+  assert.equal(mover.z, -5);
+  assert.equal(mover.anim, "walk");
+
+  client.close();
+  other.close();
+});
+
+test("chat burst is rate limited without disconnecting", async (t) => {
+  const { server, url } = await startTestServer();
+  t.after(async () => server.close());
+
   const client = await connect(url);
   const welcome = waitFor(client, "welcome");
   send(client, { type: "join", displayName: "Rate Test" });
   await welcome;
 
   const rateError = waitFor(client, "error");
-  for (let i = 0; i < 6; i++) send(client, { type: "chat", text: "message " + i });
+  for (let i = 0; i < 6; i++) {
+    send(client, { type: "chat", text: "message " + i });
+  }
+
   assert.match((await rateError).message, /too quickly/i);
   assert.equal(client.readyState, WebSocket.OPEN);
   client.close();
@@ -98,6 +156,7 @@ test("chat burst is rate limited without disconnecting the guest", async (t) => 
 test("unknown message types receive a structured error", async (t) => {
   const { server, url } = await startTestServer();
   t.after(async () => server.close());
+
   const client = await connect(url);
   const welcome = waitFor(client, "welcome");
   send(client, { type: "join", displayName: "Tester" });
