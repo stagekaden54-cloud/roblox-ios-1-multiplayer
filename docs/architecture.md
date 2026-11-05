@@ -2,47 +2,70 @@
 
 ## Goals
 
-1. Preserve the historical app's visual identity and document its original behavior.
-2. Build an independent multiplayer service for controlled experiments.
-3. Keep the server protocol small and explicit.
-4. Rebuild the iOS experience for modern 64-bit devices rather than attempting to run the original 32-bit executable unchanged.
+1. Deliver a nostalgic + modern multiplayer foundation inspired by early Roblox iOS.
+2. Keep the protocol small, explicit, and easy to evolve.
+3. Prioritize solid basics (session, character, animation, camera, movement, sync) before advanced systems.
+4. Remain fully independent from official Roblox services.
 
-## Components
+## High-Level Components
 
-- **iOS client (planned):** a modern iOS app that recreates selected historical screens and connects to the custom service.
-- **WebSocket server (prototype):** owns temporary guest sessions, one in-memory lobby, presence, chat fan-out, heartbeat checks, and basic rate limits.
-- **Persistence (later):** optional database for room metadata or test profiles. The first prototype is intentionally in-memory.
+- **iOS Client (Swift)**  
+  Native UI, camera, local input, rendering, and presentation of remote players.
 
-## Protocol
+- **Multiplayer Server (currently Node.js)**  
+  Owns sessions, room state, authoritative player state, and broadcasting.
 
-Client to server:
+- **Protocol**  
+  Explicit JSON messages over WebSocket. Designed to grow cleanly as movement and animation are added.
 
-- `{ "type": "join", "displayName": "Guest" }`
-- `{ "type": "chat", "text": "Hello" }`
+## Current Responsibilities
 
-Server to client:
+### Server
+- Guest session creation
+- Presence and chat
+- Rate limiting and basic validation
+- Heartbeat / stale connection cleanup
+- Future: authoritative position + animation state, snapshot broadcasting
 
-- `welcome` — temporary player ID and room ID
-- `presence` — current lobby members
-- `player-joined` / `player-left` — membership events
-- `chat` — server-assigned sender identity and message text
-- `error` — rejected or invalid request
+### Client
+- Guest login / connection flow
+- Lobby UI + chat (current)
+- Future: character, animations, camera, local movement prediction, interpolation of remote players
 
-Movement messages are reserved until an independent 3D test scene exists. Position updates must be validated and server-authoritative when implemented.
+## Protocol Direction (Foundation)
 
-## Prototype safeguards
+### Existing
+- `join`
+- `chat`
+- `welcome`
+- `presence`
+- `player-joined` / `player-left`
+- `error`
 
-- Guest identities are temporary and are not Roblox accounts.
-- Never request or store Roblox passwords, cookies, or authentication tokens.
-- The server enforces a 4 KiB message limit, basic per-connection message limits, and a chat burst limit.
-- Display names and chat text are length-limited and control characters are filtered.
-- Ping/pong heartbeats remove stale connections.
-- The default bind address is loopback (127.0.0.1); local network access requires an explicit host override.
-- Rooms are in-memory and reset when the server restarts.
-- This is not production-ready. Before public hosting, add WSS/TLS, a deliberate origin policy, room and connection caps, stronger abuse controls, moderation, monitoring, and a privacy review.
+### Planned for Foundation Phase
+- Client input or state messages for movement
+- Server snapshots containing position + animation state
+- Clear separation between local player and remote players
 
-## Non-goals
+Movement and animation messages will be added only after the basic 3D character and camera exist.
 
-- Reproducing Roblox's private production protocol.
-- Connecting to Roblox production accounts or services.
-- Shipping an altered Roblox-branded app as an official client.
+## Design Principles
+
+- Server is authoritative for shared state
+- Clients handle presentation, camera, and local feel
+- Animation state is networked so all players see consistent character behavior
+- Prefer simple, readable systems over premature complexity
+- Keep guest-only identity for the foundation phase
+
+## Non-Goals (for now)
+
+- Official Roblox protocol or services
+- Full account system
+- Complex physics
+- Large open worlds
+- Scripting layer
+- Heavy customization
+
+## Future Consideration
+
+Once the foundation feels solid, we may evaluate moving the core simulation and networking to C++ or Rust for better performance and control, while keeping the iOS frontend in Swift.
