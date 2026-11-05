@@ -85,11 +85,17 @@ final class WelcomeViewController: UIViewController {
         serverField.autocorrectionType = .no
         panelStack.addArrangedSubview(serverField)
 
-        let connectButton = ClassicTheme.makeButton(title: "PLAY AS GUEST")
-        connectButton.addTarget(self, action: #selector(connectTapped), for: .touchUpInside)
-        panelStack.addArrangedSubview(connectButton)
+        let playButton = ClassicTheme.makeButton(title: "ENTER WORLD")
+        playButton.addTarget(self, action: #selector(playTapped), for: .touchUpInside)
+        panelStack.addArrangedSubview(playButton)
 
-        statusLabel.text = "Prototype build • Guest access"
+        let lobbyButton = UIButton(type: .system)
+        lobbyButton.setTitle("Open Lobby Only", for: .normal)
+        lobbyButton.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
+        lobbyButton.addTarget(self, action: #selector(lobbyTapped), for: .touchUpInside)
+        panelStack.addArrangedSubview(lobbyButton)
+
+        statusLabel.text = "Foundation build • Guest access"
         statusLabel.font = .systemFont(ofSize: 12)
         statusLabel.textColor = ClassicTheme.muted
         statusLabel.textAlignment = .center
@@ -105,27 +111,38 @@ final class WelcomeViewController: UIViewController {
         content.addArrangedSubview(footer)
     }
 
-    @objc private func connectTapped() {
+    private func validatedCredentials() -> (name: String, address: String)? {
         view.endEditing(true)
         let name = (nameField.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         let address = (serverField.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+
         guard !name.isEmpty else {
             showAlert("Display name required", "Enter a guest display name to continue.")
-            return
+            return nil
         }
         guard name.count <= 20 else {
             showAlert("Name too long", "Guest display names can be up to 20 characters.")
-            return
+            return nil
         }
         guard let url = URL(string: address),
               let scheme = url.scheme?.lowercased(),
               (scheme == "ws" || scheme == "wss"),
               url.host != nil else {
             showAlert("Invalid server address", "Use a WebSocket address such as ws://192.168.1.25:8080.")
-            return
+            return nil
         }
+        return (name, address)
+    }
 
-        let lobby = LobbyViewController(serverAddress: address, displayName: name)
+    @objc private func playTapped() {
+        guard let creds = validatedCredentials() else { return }
+        let game = GameViewController(serverAddress: creds.address, displayName: creds.name)
+        navigationController?.pushViewController(game, animated: true)
+    }
+
+    @objc private func lobbyTapped() {
+        guard let creds = validatedCredentials() else { return }
+        let lobby = LobbyViewController(serverAddress: creds.address, displayName: creds.name)
         navigationController?.pushViewController(lobby, animated: true)
     }
 
