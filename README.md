@@ -1,26 +1,45 @@
 # Roblox iOS 1.0 — Multiplayer Experiment
 
-An independent preservation and learning project exploring a modern, custom multiplayer companion for the historical Roblox iOS 1.0 app.
+An independent preservation and learning project exploring a modern, custom multiplayer companion inspired by the historical Roblox iOS 1.0 era.
 
-This project is **not an official Roblox product** and does not connect to Roblox production services. The multiplayer backend and protocol are original implementations for controlled testing.
+This project is **not an official Roblox product** and does not connect to Roblox production services. All multiplayer systems are original.
 
-## Current status
+## Vision
 
-- [x] Repository architecture and staged plan
-- [x] Local WebSocket server with temporary guest identities
-- [x] One in-memory lobby, presence updates, and chat
-- [x] Heartbeat cleanup and basic message/chat rate limits
-- [x] Automated tests for two-client join, presence, chat, leave, and error handling
-- [x] Manual two-client demo script
-- [ ] Native iOS client and 3D test scene
-- [ ] Device build and signed IPA
+Create a **nostalgic + modern** multiplayer experience:
+- Classic early-Roblox feel (blocky characters, simple world language, clean mobile-inspired UI)
+- Modern execution (smooth animations, good camera, responsive controls, solid netcode)
+
+We are building the **foundation first**. Advanced systems come later.
+
+## Current Foundation Goals
+
+### Phase 1 — Core Basics (In Progress)
+- [x] WebSocket server with guest identities, presence, and chat
+- [x] Basic iOS client (welcome screen, lobby, chat)
+- [ ] Improved authentication / guest session flow
+- [ ] Basic character representation
+- [ ] Core animations (idle, walk, jump, fall)
+- [ ] Third-person camera
+- [ ] Local movement
+- [ ] Multiplayer position + animation sync
+- [ ] Clean UI foundation with transitions
+
+### Phase 2 — Advanced (Paused — waiting for approval)
+- Better physics & collision
+- Multiple rooms / instances
+- Character customization
+- Particles, effects, sound
+- Deeper world interactions
+- Possible C++/Rust core migration for performance
 
 ## Requirements
 
-- Node.js 20 or newer
-- npm (included with Node.js)
+- Node.js 20 or newer (current server)
+- Xcode 15+ (iOS client)
+- npm
 
-## Run locally
+## Run the server
 
 ```sh
 cd multiplayer-server
@@ -29,55 +48,45 @@ npm test
 npm start
 ```
 
-The server binds to `127.0.0.1:8080` by default, so it is reachable only from the same device/computer. Set `PORT` to change the port. To bind to another interface for a trusted local-network test, set `HOST=0.0.0.0`; do not expose this prototype to the public internet.
+Default: `ws://127.0.0.1:8080`  
+For local network testing: `HOST=0.0.0.0 npm start`
 
-In a second terminal, run the two-client demonstration:
-
-```sh
-cd multiplayer-server
-npm run demo
-```
-
-To connect a client on a different device on your local network, use the host computer's LAN address in `SERVER_URL`, for example:
+## iOS Client
 
 ```sh
-SERVER_URL=ws://192.168.1.25:8080 npm run demo
+open ios/RobloxIOS1.xcodeproj
 ```
 
-Replace that example address with the host computer's actual LAN address.
+See `ios/README.md` for connection instructions.
 
-## Protocol
+## Protocol (Current)
 
-Client messages:
-
+**Client → Server**
 - `{ "type": "join", "displayName": "Guest" }`
 - `{ "type": "chat", "text": "Hello" }`
 
-Server messages:
+**Server → Client**
+- `welcome` — player ID + room ID
+- `presence` — current players
+- `player-joined` / `player-left`
+- `chat`
+- `error`
 
-- `welcome` — temporary player ID and room ID
-- `presence` — current players in the lobby
-- `player-joined` / `player-left` — lobby membership events
-- `chat` — chat message with server-assigned player identity
-- `error` — rejected or invalid request
+Movement and animation messages will be added during the foundation phase.
 
-Movement is intentionally not implemented until an independent 3D test scene exists.
+## Safety Notes
 
-## Safety and preservation notes
+- Temporary guest identities only
+- No Roblox accounts, cookies, or credentials
+- Do not commit secrets, certificates, or private keys
+- This is an independent learning project
 
-- Keep the original IPA unchanged and backed up separately.
-- The historical app binary is not made modern by signing it; a supported 64-bit client must be rebuilt.
-- This server uses temporary guest identities, not Roblox accounts.
-- Never put Apple signing certificates, private keys, passwords, Roblox cookies, or authentication tokens in this repository.
-- The server is a learning prototype, not production-ready. It has no durable accounts, moderation dashboard, TLS deployment, or robust distributed abuse controls.
+## Project Structure
 
-
-## Native iOS client
-
-The first Swift + UIKit client scaffold is now under `ios/`.
-
-- Open `ios/RobloxIOS1.xcodeproj` in Xcode.
-- Select the `RobloxIOS1` scheme and an iPhone simulator or device.
-- See `ios/README.md` for local multiplayer connection instructions.
-
-The client currently includes a classic-inspired guest welcome screen, configurable WebSocket server address, lobby player list, and chat. It is an independent modern app and does not embed or patch the historical IPA. The app has not yet been compiled or device-tested.
+```
+roblox-ios-1-multiplayer/
+├── multiplayer-server/     # Current Node.js prototype server
+├── ios/                    # Swift + UIKit client
+├── docs/                   # Architecture & planning
+└── README.md
+```
